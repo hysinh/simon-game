@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const { game } = require("../game");
+const { game, newGame, showScore, addTurn, lightsOn } = require("../game");
 
 beforeAll(() => {   // loads the index file into the Jest mock DOM
     let fs = require("fs");
@@ -25,4 +25,55 @@ describe("game object contains correct keys", () => {
     test("choices key exists", () => {
         expect("choices" in game).toBe(true);
     });
+    test("choices contain the correct ids", () => {
+        expect(game.choices).toEqual(["button1", "button2", "button3", "button4"]);
+    });
+});
+
+describe("newGame works correctly", () => {
+    beforeAll(() => { // we want to set up the game state with some fake values to see if the new game function resets them
+        game.score = 42;
+        game.playerMoves = ["button1", "button2"];
+        game.currentGame = ["button1", "button2"];
+        document.getElementById("score").innerText = "42"; // needs to be a string
+        newGame();
+    });
+    test("should set game score to zero", () => {
+        expect(game.score).toEqual(0);
+    });
+    test("should clear the player moves array", () => {
+        expect(game.playerMoves.length).toBe(0); // could use .toEqual([])
+    });
+    // test("should clear the computer sequence array", () => {
+    //     expect(game.currentGame.length).toBe(0); // could use .toEqual([
+    // });
+    test("should be one move in the computer's game array", () => {
+        expect(game.currentGame.length).toBe(1);
+    })
+    test("should display 0 for the element with id of score", () => {
+        expect(document.getElementById("score").innerText).toEqual(0);
+    });
+});
+
+describe("gameplay works correctly", () => {
+    beforeEach(() => {  // beforeEach is similar to beforeAll - but beforeAll runs before all the tests, beforeEach runs before EACH test - so resetting the state each time
+    game.score = 0;
+    game.currentGame = [];
+    game.playerMoves = [];
+    addTurn();
+    });
+    afterEach(() => {
+        game.score = 0;
+        game.currentGame = [];
+        game.playerMoves = [];
+    });
+    test("addTurn adds a new turn to the game", () => {
+        addTurn();
+        expect(game.currentGame.length).toBe(2);
+    });
+    test("should add correct class to light up the buttoms", () => {
+        let button = document.getElementById(game.currentGame[0]);
+        lightsOn(game.currentGame[0]);
+        expect(button.classList).toContain("light");
+    })
 });
