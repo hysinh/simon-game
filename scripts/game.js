@@ -27,8 +27,8 @@ function addTurn() {
     // push that button ID into the computer sequence array\
     game.playerMoves = [];
     game.currentGame.push(game.choices[(Math.floor(Math.random() * 4))]);
-    //call showTurns();
-};
+    showTurns();
+}
 
 function showScore() {
     document.getElementById("score").innerText = game.score;
@@ -39,11 +39,21 @@ function lightsOn(circ) { // circ = ID of one of our cicles
     setTimeout(() => {
         document.getElementById(circ).classList.remove("light");
     }, 400);
-};
+}
 
-function showTurns() {};
+function showTurns() {
+    game.turnNumber = 0; // we're going to use that as the array index number for our game's currentGame array
+    // why are we setting this on the state? why don't we just use a simple local variable
+    let turns = setInterval(() => {  // helpful to set this as state so that we can test it
+        lightsOn(game.currentGame[game.turnNumber]);
+        game.turnNumber++;
+        if (game.turnNumber >= game.currentGame.length) {
+            clearInterval(turns);
+        }
+    }, 800);
+}
 
 function playerTurn() {};
 
 
-module.exports = {game, newGame, showScore, addTurn, lightsOn };
+module.exports = {game, newGame, showScore, addTurn, lightsOn, showTurns };
