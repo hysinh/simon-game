@@ -2,7 +2,9 @@
  * @jest-environment jsdom
  */
 
-const { game, newGame, showScore, addTurn, lightsOn, showTurns } = require("../game");
+const { game, newGame, showScore, addTurn, lightsOn, showTurns, playerTurn } = require("../game");
+
+jest.spyOn(window, "alert").mockImplementation(() => { });
 
 beforeAll(() => {   // loads the index file into the Jest mock DOM
     let fs = require("fs");
@@ -30,6 +32,15 @@ describe("game object contains correct keys", () => {
     });
     test("turnNumber key exists", () => {
         expect("turnNumber" in game).toBe(true);
+    });
+    test("lastButton key exists", () => {
+        expect("lastButton" in game).toBe(true);
+    });
+    test("turnInProgress key exists", () => {
+        expect("turnInProgress" in game).toBe(true);
+    });
+    test("turnInProgress key value is false", () => {
+        expect("turnInProgress" in game).toBe(true);
     });
 });
 
@@ -99,5 +110,25 @@ describe("gameplay works correctly", () => {
         game.playerMoves.push(game.currentGame[0]); 
         playerTurn();
         expect(game.score).toBe(1);
+    });
+    test("should call an alert if the move is wrong", () => {
+        game.playerMoves.push("wrong");
+        playerTurn();
+        expect(window.alert).toBeCalledWith("Wrong move!");
+    });
+    test("should toggle turnInProgress to true", () => {
+        showTurns();
+        expect(game.turnInProgress).toBe(true);
+    });
+    test("clicking during computer sequence should fail", () => {
+        showTurns();
+        game.lastButton = ""; // reset tp be empty
+        // call click function - it should not set a value of 
+        // game.lastButton - there should be no ID on there if clicks 
+        // have been disabled = contents of lastButton shouldn't change
+        // after we clear it if clicks are disabled
+        document.getElementById("button2").click(); 
+        expect(game.lastButton).toEqual("");
+
     });
 });

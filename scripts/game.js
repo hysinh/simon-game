@@ -3,6 +3,8 @@ let game = {
     currentGame: [],
     playerMoves: [],
     turnNumber: 0,
+    lastButton: "",
+    turnInProgress: false,
     choices: [
         "button1",
         "button2",
@@ -20,10 +22,13 @@ function newGame() {
     for (let circle of document.getElementsByClassName("circle")) {
         if (circle.getAttribute("data-listener") !== "true") {
             circle.addEventListener("click", (e) => {
-                let move = e.target.getAttribute("id");
-                lightsOn(move);
-                game.playerMoves.push(move);
-                playerTurn();
+                if (game.currentGame.length > 0 && !game.turnInProgress) { // > 0 so we know that a game is in progress
+                    let move = e.target.getAttribute("id"); // checks to see if a circle is clicked and then is stored as the game.lastButoon
+                    game.lastButton = move;
+                    lightsOn(move);
+                    game.playerMoves.push(move);
+                    playerTurn();
+                }
             });
             circle.setAttribute("data-listener", "true");
         }
@@ -54,6 +59,7 @@ function lightsOn(circ) { // circ = ID of one of our cicles
 }
 
 function showTurns() {
+    game.turnInProgress = true; // true bc player turns have started
     game.turnNumber = 0; // we're going to use that as the array index number for our game's currentGame array
     // why are we setting this on the state? why don't we just use a simple local variable
     let turns = setInterval(() => {  // helpful to set this as state so that we can test it
@@ -61,11 +67,28 @@ function showTurns() {
         game.turnNumber++;
         if (game.turnNumber >= game.currentGame.length) {
             clearInterval(turns);
+            game.turnInProgress = false;
         }
     }, 800);
 }
 
-function playerTurn() {};
+function playerTurn() {
+    //get the index of the last element from our playerMoves array
+    // then compare that with the same index in the current game array
+    // if the player's answer is correct, then these two should match
+    // we should be able to compare elements at the same index number
+    let i = game.playerMoves.length - 1;
+    if (game.currentGame[i] === game.playerMoves[i]) {
+        if (game.currentGame.length == game.playerMoves.length) {
+            game.score++;
+            showScore();
+            addTurn();
+        }
+    } else {
+        alert("Wrong move!");
+        newGame();
+    }
+};
 
 
-module.exports = {game, newGame, showScore, addTurn, lightsOn, showTurns };
+module.exports = {game, newGame, showScore, addTurn, lightsOn, showTurns, playerTurn };
