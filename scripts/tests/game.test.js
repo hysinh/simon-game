@@ -28,6 +28,9 @@ describe("game object contains correct keys", () => {
     test("choices contain the correct ids", () => {
         expect(game.choices).toEqual(["button1", "button2", "button3", "button4"]);
     });
+    test("turnNumber key exists", () => {
+        expect("turnNumber" in game).toBe(true);
+    });
 });
 
 describe("newGame works correctly", () => {
@@ -52,6 +55,12 @@ describe("newGame works correctly", () => {
     })
     test("should display 0 for the element with id of score", () => {
         expect(document.getElementById("score").innerText).toEqual(0);
+    });
+    test("expect data-listener to be true", () => {
+        const elements = document.getElementsByClassName("circle");
+        for (let element of elements) {
+            expect(element.getAttribute("data-listener")).toEqual("true");
+        }
     });
 });
 
@@ -80,5 +89,15 @@ describe("gameplay works correctly", () => {
         game.turnNumber = 42;
         showTurns();
         expect(game.turnNumber).toBe(0);
+    });
+    test("should increment the score if the turn is correct", () => {
+        // in the beforeEach functio of our gamePlay, we're adding one 
+        // turn. So we take that turn and push it into the playerMoves 
+        // array bg calling playerTurn - that way we know that we have a 
+        // correct answer bc playerTurn and computersTurn match each 
+        // other
+        game.playerMoves.push(game.currentGame[0]); 
+        playerTurn();
+        expect(game.score).toBe(1);
     });
 });
